@@ -9,6 +9,7 @@ public class Chromosome {
     public Chromosome(){
         genes = new Gene[allItems.length];
         for(int i = 0; i < allItems.length; ++i){
+            genes[i] = new Gene();
             genes[i].item = allItems[i];
         }
     }
