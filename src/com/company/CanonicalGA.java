@@ -14,6 +14,7 @@ public class CanonicalGA {
     double PM = 0.01;
     double knapsacksize;
     int itemsNo;
+    double cumFitness;
 
     CanonicalGA(Item[] items, double knapsacksize){
         Chromosome.allItems = items;
@@ -22,12 +23,13 @@ public class CanonicalGA {
         itemsNo = items.length;
         this.knapsacksize = knapsacksize;
     }
+
     public Chromosome applyAlgorithm(int maxGen, int popNum){
         initRandGeneration(popNum);
         for(int i = 0; i < maxGen; ++i){
             evalAllFitness();
             for(int j = 0; j < itemsNo/2; ++j){
-                Pair<Chromosome, Chromosome> parents = selectChromosomes();
+                Parent parents = selectChromosomes();
                 doCrossOver(parents);
             }
             doAllMutation();
@@ -48,15 +50,32 @@ public class CanonicalGA {
     }
 
     private void evalAllFitness(){
-
+        double cumFitness = 0;
+        for (Chromosome chromosome : generation) {
+            cumFitness += chromosome.evaluateFitness(knapsacksize);
+            chromosome.cumFitness = cumFitness;
+        }
+        this.cumFitness = cumFitness;
     }
 
-    private Pair<Chromosome, Chromosome> selectChromosomes(){
-
-        return null;
+    private Parent selectChromosomes(){
+        Random rand = new Random(799);
+        Parent parent = new Parent();
+        for (int i = 0; i < 2; i++) {
+            System.out.println(cumFitness + "  " +i);
+            int randChrom = rand.nextInt((int) cumFitness);
+            int initCum = 0;
+            for (Chromosome chromosome : generation) {
+                int cumVal = (int) chromosome.cumFitness;
+                if (randChrom >= initCum && randChrom <= cumVal)
+                    parent.setParent(chromosome);
+                initCum = cumVal;
+            }
+        }
+        return parent;
     }
 
-    private void doCrossOver(Pair<Chromosome, Chromosome> parents){
+    private void doCrossOver(Parent parents){
         Random rand = new Random(799);
         double r = rand.nextDouble();
 
@@ -66,16 +85,16 @@ public class CanonicalGA {
 
         if(r <= PC) {
             for (int i = 0; i < L; ++i) {
-                offspring1.genes[i] = parents.getKey().genes[i];
-                offspring2.genes[i] = parents.getValue().genes[i];
+                offspring1.genes[i] = parents.getC1().genes[i];
+                offspring2.genes[i] = parents.getC2().genes[i];
             }
             for (int i = L - 1; i < itemsNo; ++i) {
-                offspring1.genes[i] = parents.getValue().genes[i];
-                offspring2.genes[i] = parents.getKey().genes[i];
+                offspring1.genes[i] = parents.getC2().genes[i];
+                offspring2.genes[i] = parents.getC1().genes[i];
             }
         }else{
-            offspring1 = parents.getKey();
-            offspring2 = parents.getValue();
+            offspring1 = parents.getC1();
+            offspring2 = parents.getC2();
         }
         newGeneration.add(offspring1);
         newGeneration.add(offspring2);
@@ -94,6 +113,14 @@ public class CanonicalGA {
     }
 
     private Chromosome getOptimalChromosome() {
-        return null;
+        double maxFitness = 0;
+        Chromosome optimalChromosome = null;
+        for (Chromosome chromosome : newGeneration) {
+            if (chromosome.evaluateFitness(knapsacksize) > maxFitness) {
+                maxFitness = chromosome.fitness;
+                optimalChromosome = chromosome;
+            }
+        }
+        return optimalChromosome;
     }
 }

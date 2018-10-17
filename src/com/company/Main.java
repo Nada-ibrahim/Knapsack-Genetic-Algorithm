@@ -21,7 +21,9 @@ public class Main {
                 allItems[j] = new Item(scan.nextDouble(), scan.nextDouble());
             }
             CanonicalGA ga = new CanonicalGA(allItems, s);
-            ga.applyAlgorithm(100, 100);
+            Chromosome optimalChrom = ga.applyAlgorithm(100, 100);
+            System.out.println(optimalChrom.fitness);
+            System.out.println(optimalChrom.evaluateVal());
         }
 
     }
