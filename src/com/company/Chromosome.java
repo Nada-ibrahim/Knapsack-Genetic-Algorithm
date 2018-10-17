@@ -16,12 +16,24 @@ public class Chromosome {
         cumFitness = 0;
     }
 
+    Chromosome(Chromosome copy){
+        fitness = copy.fitness;
+        cumFitness = copy.cumFitness;
+        genes = new Gene[allItems.length];
+        for(int i = 0; i < copy.genes.length; ++i){
+            genes[i] = new Gene(copy.genes[i]);
+        }
+    }
     public double evaluateFitness(double knapsacksize){
-        for (int i = 0; i < genes.length; ++i)
-            if (genes[i].isActive)
-                fitness += genes[i].item.weight;
-
-        if (fitness > knapsacksize)
+        fitness = 0;
+        double weight = 0;
+        for (int i = 0; i < genes.length; ++i) {
+            if (genes[i].isActive) {
+                weight += genes[i].item.weight;
+                fitness += genes[i].item.value;
+            }
+        }
+        if (weight > knapsacksize)
             fitness = 1/fitness;
         return fitness;
     }

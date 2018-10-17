@@ -10,8 +10,8 @@ public class CanonicalGA {
 
     List<Chromosome> generation;
     List<Chromosome> newGeneration;
-    double PC = 0.6;
-    double PM = 0.01;
+    double PC = 0.7;
+    double PM = 0.001;
     double knapsacksize;
     int itemsNo;
     double cumFitness;
@@ -40,7 +40,7 @@ public class CanonicalGA {
     }
 
     private void initRandGeneration(int popNum){
-        Random rand = new Random(799);
+        Random rand = new Random();
         for(int i = 0 ; i < popNum; ++i){
             generation.add(new Chromosome());
             for(int j = 0; j < itemsNo; ++j) {
@@ -59,15 +59,17 @@ public class CanonicalGA {
     }
 
     private Parent selectChromosomes(){
-        Random rand = new Random(799);
+        Random rand = new Random();
         Parent parent = new Parent();
         for (int i = 0; i < 2; i++) {
-            int randChrom = rand.nextInt((int) cumFitness);
-            int initCum = 0;
+            double randChrom = rand.nextDouble()*cumFitness;
+            double initCum = 0;
             for (Chromosome chromosome : generation) {
-                int cumVal = (int) chromosome.cumFitness;
-                if (randChrom >= initCum && randChrom <= cumVal)
+                double cumVal = chromosome.cumFitness;
+                if (randChrom >= initCum && randChrom <= cumVal) {
                     parent.setParent(chromosome);
+                    break;
+                }
                 initCum = cumVal;
             }
         }
@@ -75,25 +77,28 @@ public class CanonicalGA {
     }
 
     private void doCrossOver(Parent parents){
-        Random rand = new Random(799);
+        Random rand = new Random();
         double r = rand.nextDouble();
 
-        int L = rand.nextInt(itemsNo-1);
-        Chromosome offspring1 = new Chromosome();
-        Chromosome offspring2 = new Chromosome();
+        int L = rand.nextInt(itemsNo-1)+1;
+        Chromosome offspring1;
+        Chromosome offspring2;
 
         if(r <= PC) {
+            offspring1 = new Chromosome();
+            offspring2 = new Chromosome();
             for (int i = 0; i < L; ++i) {
-                offspring1.genes[i] = parents.getC1().genes[i];
-                offspring2.genes[i] = parents.getC2().genes[i];
+                offspring1.genes[i] = new Gene(parents.getC1().genes[i]);
+                offspring2.genes[i] = new Gene(parents.getC2().genes[i]);
             }
-            for (int i = L - 1; i < itemsNo; ++i) {
-                offspring1.genes[i] = parents.getC2().genes[i];
-                offspring2.genes[i] = parents.getC1().genes[i];
+//            System.out.println(L);
+            for (int i = L; i < itemsNo; ++i) {
+                offspring1.genes[i] = new Gene(parents.getC2().genes[i]);
+                offspring2.genes[i] = new Gene(parents.getC1().genes[i]);
             }
         }else{
-            offspring1 = parents.getC1();
-            offspring2 = parents.getC2();
+            offspring1 = new Chromosome(parents.getC1());
+            offspring2 = new Chromosome(parents.getC2());
         }
         newGeneration.add(offspring1);
         newGeneration.add(offspring2);
@@ -101,7 +106,7 @@ public class CanonicalGA {
     }
 
     private void doAllMutation(){
-        Random rand = new Random(799);
+        Random rand = new Random();
         for (Chromosome chromosome : newGeneration) {
             for (int j = 0; j < itemsNo; ++j) {
                 if (rand.nextDouble() <= PM) {
