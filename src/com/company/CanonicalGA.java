@@ -28,7 +28,7 @@ public class CanonicalGA {
         initRandGeneration(popNum);
         for(int i = 0; i < maxGen; ++i){
             evalAllFitness();
-            for(int j = 0; j < itemsNo/2; ++j){
+            for(int j = 0; j < popNum/2; ++j){
                 Parent parents = selectChromosomes();
                 doCrossOver(parents);
             }
@@ -62,7 +62,6 @@ public class CanonicalGA {
         Random rand = new Random(799);
         Parent parent = new Parent();
         for (int i = 0; i < 2; i++) {
-            System.out.println(cumFitness + "  " +i);
             int randChrom = rand.nextInt((int) cumFitness);
             int initCum = 0;
             for (Chromosome chromosome : generation) {
@@ -115,7 +114,7 @@ public class CanonicalGA {
     private Chromosome getOptimalChromosome() {
         double maxFitness = 0;
         Chromosome optimalChromosome = null;
-        for (Chromosome chromosome : newGeneration) {
+        for (Chromosome chromosome : generation) {
             if (chromosome.evaluateFitness(knapsacksize) > maxFitness) {
                 maxFitness = chromosome.fitness;
                 optimalChromosome = chromosome;
